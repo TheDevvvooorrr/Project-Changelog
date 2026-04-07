@@ -6,6 +6,28 @@
 
 ---
 
+## v2.1 — Docs & UI Cleanup (Apr 7, 2026)
+
+### Documentation
+- Created full documentation site (GitBook) with 7 pages
+- Covers: How It Works, Privacy Levels, Fees & Minimums, Recovery, Security, FAQ
+- Flow diagrams for each privacy level
+- No provider names or internal details exposed
+- Docs link added to footer
+
+### UI Simplification
+- Hidden Batch and Bridge tabs from main UI (code preserved, not production-ready yet)
+- Hidden Enhanced and Maximum privacy selectors — only Maximum+ available
+- Default privacy level set to Maximum+
+- Removed mode tab bar (single-mode view)
+
+### Branding
+- Console logs now use `[Ciego]` instead of previous branding
+- Third-party provider names hidden from user-facing console messages (replaced with "private pool")
+- Logo removed from header
+
+---
+
 ## v2.0 — Exchange UI Redesign (Apr 4, 2026)
 
 ### Visual Overhaul
@@ -175,4 +197,4 @@
 
 ---
 
-*Last updated: April 4, 2026*
+*Last updated: April 7, 2026*
