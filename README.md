@@ -1,105 +1,42 @@
-# Solana Private Transaction Tool
+# Secreto
 
-> A privacy-focused transaction platform built on Solana that breaks on-chain links between sender and recipient.
+> Private transfer experience on Solana with Phantom wallet popup flow.
 
 ---
 
-## Overview
+## What is Secreto?
 
-This tool enables private token transfers on Solana by routing transactions through intermediary wallets, token swaps, and cross-chain bridges — making it significantly harder to trace the origin and destination of funds through on-chain analysis.
+Secreto is a privacy-focused transfer app designed to make on-chain fund movement harder to correlate, while keeping the UX simple and familiar.
 
-## How It Works
+## Core Product Principles
 
-Transactions are routed through **shadow wallets** — temporary keypairs generated client-side that act as intermediaries. Funds flow from the sender to a shadow wallet, are optionally swapped or bridged, and then forwarded to the final recipient. The on-chain trail between sender and recipient is broken at each hop.
+- Phantom popup flow (no seed phrase requests)
+- Zero-login experience
+- Minimal swap-card style UI
+- Clear fee/total breakdown before confirmation
+- Privacy-first routing design
 
-### Privacy Levels
+## Main Features
 
-| Level | Method | Privacy Rating |
-|-------|--------|---------------|
-| **Enhanced** | Shadow wallet + DEX swap (different token out) | ⭐⭐⭐ |
-| **Maximum** | Shadow wallet + cross-chain bridge (exits and re-enters Solana) | ⭐⭐⭐⭐⭐ |
-| **Maximum+** | Double bridge — two sequential cross-chain hops with separate shadow wallets | ⭐⭐⭐⭐⭐+ |
+- Private transfer flow with intermediate routing
+- Support for major Solana assets (SOL and stablecoins)
+- Resilient transaction flow with retry/recovery behavior
+- Single-session usability improvements for smoother execution
 
-### Transaction Flow
+## User Experience
 
-```
-Enhanced:
-  Sender → Shadow Wallet → DEX Swap → Recipient
+- Clean, exchange-inspired interface
+- Focused transfer flow with reduced distractions
+- Real-time amount, fee, and total visibility
 
-Maximum:
-  Sender → Shadow Wallet → Bridge Out → Bridge In → Recipient
+## Security & Privacy Approach
 
-Maximum+ (Double Bridge):
-  Sender → Shadow₁ → Bridge Out → Bridge In → Shadow₂ → Bridge Out → Bridge In → Recipient
-```
-
-## Features
-
-- **Multi-token support** — SOL, USDC, USDT, and other SPL tokens
-- **Batch mode** — Send to multiple recipients in one session with a single wallet approval
-- **Cross-chain bridge** — Exits Solana and re-enters to break on-chain links
-- **Same-token routes** — Stablecoins bridge out and return as the same token
-- **Auto-splitting** — Large amounts are split across multiple shadow wallets
-- **RPC resilience** — Automatic failover across multiple RPC endpoints
-- **MEV protection** — Transaction bundling to prevent front-running
-- **Recovery system** — Stuck funds in shadow wallets can be recovered
-- **Single approval** — All transactions consolidated into one wallet popup
-
-## Supported Tokens
-
-| Token | Enhanced | Maximum | Maximum+ |
-|-------|----------|---------|----------|
-| SOL | ✅ | ✅ | ✅ |
-| USDC | ✅ | ✅ | ✅ |
-| USDT | ✅ | ✅ | ✅ |
-
-## Architecture
-
-```
-Frontend (Vanilla JS)
-├── Main app logic & UI
-├── Privacy engine (Enhanced mode — DEX routing)
-├── Maximum engine (Bridge routing + double bridge)
-├── Bridge module (Cross-chain API integration)
-├── DEX swap module (token aggregator)
-├── RPC resilience layer (multi-endpoint failover)
-└── Visual effects (particles, glassmorphism, 3D tilt)
-
-Backend (Node.js)
-└── Lightweight proxy server for API calls
-```
-
-### Key Design Decisions
-
-- **Client-side key generation** — Shadow wallet keypairs are generated in the browser and never leave the client
-- **No backend state** — The server is a stateless proxy; all transaction logic runs client-side
-- **Automatic cleanup** — Shadow wallets are emptied and discarded after each transaction
-- **Fee system** — 1% fee on all transactions sent to a designated fee wallet
-
-## UI
-
-Exchange-style interface with:
-- Glassmorphism cards with backdrop blur
-- Particle background with floating connections
-- 3D tilt effect on interactive cards
-- Three main tabs: Send Privately, Bridge, Batch
-- Consistent table-based layouts across all tabs
-- Real-time balance display and USD estimates
-
-## Privacy Considerations
-
-- Shadow wallets are **ephemeral** — generated per transaction, not reused
-- Cross-chain bridges break the direct Solana→Solana link entirely
-- Double bridge (Maximum+) adds a second hop through an additional shadow wallet
-- Amount splitting distributes funds across multiple intermediaries
-- No transaction history is stored on the server or client
-
-## Requirements
-
-- Node.js 18+
-- Phantom or Backpack wallet (browser extension)
-- SOL for transaction fees and rent
+- Sensitive signing remains wallet-side via Phantom
+- No public disclosure of internal routing or infrastructure details
+- Production mindset: reliability, clarity, and privacy by default
 
 ## Status
 
-Active development — see [CHANGELOG.md](./CHANGELOG.md) for full version history.
+Active development.
+
+See [CHANGELOG.md](./CHANGELOG.md) for version history.

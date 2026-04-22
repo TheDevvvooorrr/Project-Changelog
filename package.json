@@ -1,5 +1,5 @@
 {
-  "name": "solana-private-tx",
+  "name": "secreto",
   "version": "1.4.0",
   "description": "Solana privacy transaction tool",
   "main": "server.js",
