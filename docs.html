@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docs — Private Solana Transactions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060612; --bg2: #0c0c1d;
+      --card: rgba(16, 16, 40, 0.7); --border: rgba(100, 80, 255, 0.12);
+      --border-glow: rgba(100, 80, 255, 0.25);
+      --text: #e8e8ff; --text2: #7878a8;
+      --accent: #7c5cff; --accent2: #00d4ff;
+      --primary: #6e56ff; --green: #00d26a; --red: #ff4757;
+      --glass: rgba(16, 16, 40, 0.6); --glass-border: rgba(255, 255, 255, 0.06);
+      --glow-primary: 0 0 20px rgba(110, 86, 255, 0.3), 0 0 60px rgba(110, 86, 255, 0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.7; }
+
+    /* Ambient orbs */
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; opacity: 0.4; }
+    .orb-1 { width: 400px; height: 400px; background: rgba(110,86,255,0.15); top: -100px; left: -100px; }
+    .orb-2 { width: 350px; height: 350px; background: rgba(0,212,255,0.1); bottom: -80px; right: -80px; }
+
+    .docs-container {
+      position: relative; z-index: 1;
+      max-width: 720px; margin: 0 auto; padding: 40px 20px 80px;
+    }
+
+    /* Back button */
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--accent2); text-decoration: none; font-size: 14px; font-weight: 500;
+      margin-bottom: 32px; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    /* Title */
+    h1 {
+      font-size: 32px; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: var(--text2); font-size: 15px; margin-bottom: 40px; }
+
+    /* Section cards */
+    .doc-section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; margin-bottom: 20px;
+      backdrop-filter: blur(12px); transition: border-color 0.3s;
+    }
+    .doc-section:hover { border-color: var(--border-glow); }
+
+    h2 {
+      font-size: 18px; font-weight: 600; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h2 .icon { font-size: 22px; }
+
+    h3 { font-size: 15px; font-weight: 600; color: var(--accent2); margin: 16px 0 8px; }
+
+    p, li { font-size: 14px; color: var(--text2); line-height: 1.8; }
+    p { margin-bottom: 12px; }
+    ul { padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    li strong { color: var(--text); }
+
+    /* Privacy level cards */
+    .level-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .level-card {
+      background: rgba(10,10,30,0.6); border: 1px solid var(--glass-border);
+      border-radius: 12px; padding: 16px; position: relative; overflow: hidden;
+    }
+    .level-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+    }
+    .level-card.enhanced::before { background: var(--accent); }
+    .level-card.maximum::before { background: var(--accent2); }
+    .level-card.maximum-plus::before { background: linear-gradient(to bottom, var(--accent), var(--accent2)); }
+
+    .level-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .level-stars { color: var(--accent2); font-size: 12px; letter-spacing: 1px; }
+    .level-desc { font-size: 13px; color: var(--text2); }
+
+    /* Flow diagram */
+    .flow {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin: 12px 0; padding: 12px; background: rgba(10,10,30,0.5);
+      border-radius: 10px; border: 1px solid var(--glass-border);
+    }
+    .flow-step {
+      background: rgba(110,86,255,0.15); border: 1px solid rgba(110,86,255,0.3);
+      border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--text);
+      font-weight: 500; white-space: nowrap;
+    }
+    .flow-arrow { color: var(--accent2); font-size: 14px; }
+
+    /* Token table */
+    .token-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .token-table th, .token-table td {
+      text-align: left; padding: 10px 12px; font-size: 13px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .token-table th { color: var(--text2); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .token-table td { color: var(--text); }
+    .token-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(110,86,255,0.1); border-radius: 6px; padding: 2px 8px;
+    }
+
+    /* Warning box */
+    .warning {
+      background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.2);
+      border-radius: 12px; padding: 16px; margin-top: 12px;
+    }
+    .warning p { color: var(--red); font-size: 13px; margin: 0; }
+
+    /* Info box */
+    .info-box {
+      background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 12px; padding: 16px; margin-top: 12px;
+    }
+    .info-box p { color: var(--accent2); font-size: 13px; margin: 0; }
+
+    /* Footer */
+    .docs-footer {
+      text-align: center; margin-top: 40px; padding-top: 20px;
+      border-top: 1px solid var(--glass-border);
+    }
+    .docs-footer p { font-size: 12px; color: var(--text2); }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="docs-container">
+    <a href="index.html" class="back-link">← Back to App</a>
+
+    <h1>Documentation</h1>
+    <p class="subtitle">How private transactions work on Solana</p>
+
+    <!-- SECTION: Overview -->
+    <div class="doc-section">
+      <h2><span class="icon">🔒</span> What is this?</h2>
+      <p>A privacy tool for Solana that breaks the on-chain link between sender and recipient. Traditional Solana transfers create a direct, traceable connection between wallets — this tool eliminates that link using multiple techniques.</p>
+      <p>Every transaction is routed through disposable shadow wallets, token swaps, and private pools to make blockchain analysis extremely difficult.</p>
+    </div>
+
+    <!-- SECTION: How it works -->
+    <div class="doc-section">
+      <h2><span class="icon">⚡</span> How it works</h2>
+      <p>Instead of sending funds directly from A → B, the tool creates an indirect path that breaks traceability:</p>
+
+      <h3>Core Techniques</h3>
+      <ul>
+        <li><strong>Shadow Wallets</strong> — Fresh, disposable wallets generated for each transaction. Your main wallet never touches the recipient.</li>
+        <li><strong>Token Swaps</strong> — Funds are converted between tokens mid-route (e.g. SOL → USDC → SOL), breaking token-based tracking.</li>
+        <li><strong>Private Pools</strong> — External liquidity pools that receive from one address and send from a completely different, unlinked address.</li>
+        <li><strong>Amount Splitting</strong> — Large amounts are split into random smaller pieces, each taking a different path.</li>
+        <li><strong>MEV Protection</strong> — Transactions use bundle protection to prevent front-running and sandwich attacks.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION: Privacy Levels -->
+    <div class="doc-section">
+      <h2><span class="icon">🛡️</span> Privacy Levels</h2>
+      <p>Choose the level that matches your needs. Higher levels take longer but provide stronger unlinkability.</p>
+
+      <div class="level-grid">
+        <div class="level-card enhanced">
+          <div class="level-name">Enhanced <span class="level-stars">⭐⭐⭐</span></div>
+          <div class="level-desc">Shadow wallet + token swap. Funds go from your wallet to a fresh shadow, get swapped to a different token, then sent to the recipient. Fast (10–30 seconds).</div>
+          <div class="flow">
+            <span class="flow-step">Your Wallet</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Shadow Wallet</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Token Swap</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Recipient</span>
+          </div>
+        </div>
+
+        <div class="level-card maximum">
+          <div class="level-name">Maximum <span class="level-stars">⭐⭐⭐⭐⭐</span></div>
+          <div class="level-desc">Shadow wallet + private pool bridge. Funds enter a private pool from your shadow and exit from a completely unlinked address to the recipient. Takes 2–10 minutes.</div>
+          <div class="flow">
+            <span class="flow-step">Your Wallet</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Shadow Wallet</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Private Pool</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Recipient</span>
+          </div>
+        </div>
+
+        <div class="level-card maximum-plus">
+          <div class="level-name">Maximum+ <span class="level-stars">⭐⭐⭐⭐⭐+</span></div>
+          <div class="level-desc">Double bridge with intermediate shadow. Funds pass through two separate private pools with a second shadow wallet in between — maximum unlinkability. Takes 5–20 minutes.</div>
+          <div class="flow">
+            <span class="flow-step">Your Wallet</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Shadow 1</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Pool 1</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Shadow 2</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Pool 2</span>
+            <span class="flow-arrow">→</span>
+            <span class="flow-step">Recipient</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Tokens -->
+    <div class="doc-section">
+      <h2><span class="icon">💰</span> Supported Tokens</h2>
+      <table class="token-table">
+        <thead>
+          <tr><th>Token</th><th>Min Amount</th><th>Privacy Levels</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="token-badge">◎ SOL</span></td>
+            <td>~0.006 SOL</td>
+            <td>Enhanced, Maximum, Maximum+</td>
+          </tr>
+          <tr>
+            <td><span class="token-badge">$ USDC</span></td>
+            <td>~2 USDC</td>
+            <td>Enhanced, Maximum, Maximum+</td>
+          </tr>
+          <tr>
+            <td><span class="token-badge">$ USDT</span></td>
+            <td>~2 USDT</td>
+            <td>Enhanced, Maximum, Maximum+</td>
+          </tr>
+          <tr>
+            <td><span class="token-badge">$ USD1</span></td>
+            <td>~0.5 USD1</td>
+            <td>Enhanced, Maximum, Maximum+</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-box">
+        <p>ℹ️ Minimum amounts are set by the private pool providers and may vary slightly. The app checks minimums automatically before sending.</p>
+      </div>
+    </div>
+
+    <!-- SECTION: Fees -->
+    <div class="doc-section">
+      <h2><span class="icon">📊</span> Fees</h2>
+      <ul>
+        <li><strong>Service Fee:</strong> 1% of the transaction amount</li>
+        <li><strong>Network Fees:</strong> Standard Solana transaction fees (~0.000005 SOL per signature)</li>
+        <li><strong>Shadow Wallet Gas:</strong> A small SOL amount is sent to the shadow wallet to cover its transaction fees (~0.003 SOL)</li>
+        <li><strong>Private Pool Fee:</strong> The pool provider takes a small spread (typically 0.5–1%)</li>
+      </ul>
+      <p>The total cost is displayed in the summary before you confirm the transaction.</p>
+    </div>
+
+    <!-- SECTION: Recovery -->
+    <div class="doc-section">
+      <h2><span class="icon">🔄</span> Recovery System</h2>
+      <p>If a transaction fails mid-way (network error, pool timeout, etc.), your funds are <strong>not lost</strong>. The app includes an automatic recovery system:</p>
+      <ul>
+        <li><strong>Automatic Detection:</strong> The app checks for stuck funds in shadow wallets on startup</li>
+        <li><strong>Recovery Banner:</strong> If stuck funds are detected, a recovery banner appears at the bottom of the screen</li>
+        <li><strong>One-Click Recovery:</strong> Click "Recover Funds" to send stuck funds back to your main wallet</li>
+        <li><strong>Shadow Key Storage:</strong> Shadow wallet keys are stored locally in your browser until recovery is complete</li>
+      </ul>
+      <div class="warning">
+        <p>⚠️ Do not clear your browser data while a transaction is in progress. Shadow wallet keys are stored in localStorage and are needed for recovery.</p>
+      </div>
+    </div>
+
+    <!-- SECTION: Security -->
+    <div class="doc-section">
+      <h2><span class="icon">🔐</span> Security Notes</h2>
+      <ul>
+        <li><strong>No custody:</strong> Your wallet is never connected to any third-party. All signing happens via your wallet extension (Phantom, Backpack, etc.)</li>
+        <li><strong>Single approval:</strong> Each send requires only one wallet popup — all internal steps are pre-built into a single transaction where possible</li>
+        <li><strong>Shadow keys are local:</strong> Disposable wallet keys are generated in-browser and never sent to any server</li>
+        <li><strong>Open progress:</strong> Every step is shown in real-time in the console so you can verify what's happening</li>
+      </ul>
+    </div>
+
+    <!-- SECTION: FAQ -->
+    <div class="doc-section">
+      <h2><span class="icon">❓</span> FAQ</h2>
+
+      <h3>How long does a transaction take?</h3>
+      <p>Enhanced: 10–30 seconds. Maximum: 2–10 minutes. Maximum+: 5–20 minutes. The private pool processing is the main factor.</p>
+
+      <h3>Can the recipient see who sent the funds?</h3>
+      <p>No. The recipient receives funds from a private pool address that has no connection to your wallet. On Maximum+, there are two pool hops making analysis even harder.</p>
+
+      <h3>What if the transaction fails?</h3>
+      <p>Funds stay in the shadow wallet. The recovery system will detect them and let you reclaim them with one click. No funds are ever lost.</p>
+
+      <h3>Does this work with any Solana wallet?</h3>
+      <p>Yes — any wallet that supports the Solana Wallet Standard (Phantom, Backpack, Solflare, etc.).</p>
+
+      <h3>Why is there a minimum amount?</h3>
+      <p>Private pools have minimum transaction sizes. Amounts below the minimum would be rejected by the pool. The app enforces these limits before attempting a transaction.</p>
+    </div>
+
+    <div class="docs-footer">
+      <p>🔒 Private · Untraceable · MEV Protected</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "solana-private-tx",
+  "version": "1.4.0",
+  "description": "Solana privacy transaction tool",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0"
+  }
+}

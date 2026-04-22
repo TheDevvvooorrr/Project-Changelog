@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Solana Transactions</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Ambient Glow Orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+  <canvas id="particleCanvas"></canvas>
+  <div class="app">
+
+    <!-- Header — Connect Wallet centered -->
+    <header class="header header-center">
+      <div id="walletInfo" class="wallet-info hidden">
+        <div id="walletAddress" class="wallet-addr"></div>
+        <button id="disconnectBtn" class="btn-disconnect" title="Disconnect">✕</button>
+      </div>
+      <div id="walletBalances" class="wallet-bals hidden"></div>
+      <button id="connectBtn" class="btn btn-connect">Connect Wallet</button>
+    </header>
+
+    <!-- Wallet Selector Modal -->
+    <div id="walletModal" class="wallet-modal hidden">
+      <div class="wallet-modal-backdrop"></div>
+      <div class="wallet-modal-content">
+        <div class="wallet-modal-header">
+          <h3>Connect Wallet</h3>
+          <button id="walletModalClose" class="wallet-modal-close">&times;</button>
+        </div>
+        <div class="wallet-modal-body">
+          <div class="wallet-option" data-wallet="phantom">
+            <img src="phantom-logo.png" alt="Phantom" class="wallet-option-icon">
+            <span class="wallet-option-fallback" style="display:none">👻</span>
+            <div class="wallet-option-info">
+              <span class="wallet-option-name">Phantom</span>
+              <span class="wallet-option-status" id="phantomStatus">Checking...</span>
+            </div>
+            <span class="wallet-option-arrow">›</span>
+          </div>
+          <div class="wallet-option" data-wallet="solflare">
+            <img src="solflare-logo.png" alt="Solflare" class="wallet-option-icon">
+            <span class="wallet-option-fallback" style="display:none">🔆</span>
+            <div class="wallet-option-info">
+              <span class="wallet-option-name">Solflare</span>
+              <span class="wallet-option-status" id="solflareStatus">Checking...</span>
+            </div>
+            <span class="wallet-option-arrow">›</span>
+          </div>
+          <div class="wallet-option" data-wallet="backpack">
+            <img src="backpack-logo.png" alt="Backpack" class="wallet-option-icon">
+            <span class="wallet-option-fallback" style="display:none">🎒</span>
+            <div class="wallet-option-info">
+              <span class="wallet-option-name">Backpack</span>
+              <span class="wallet-option-status" id="backpackStatus">Checking...</span>
+            </div>
+            <span class="wallet-option-arrow">›</span>
+          </div>
+        </div>
+        <div class="wallet-modal-footer">
+          <p>Don't have a wallet? <a href="https://phantom.app/" target="_blank">Get Phantom</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+
+      <!-- Mode Tabs -->
+      <div class="mode-tabs" id="modeTabs" style="display:none;">
+        <button class="mode-tab active" data-mode="send">Send Privately</button>
+        <!-- <button class="mode-tab" data-mode="batch">Batch</button> -->
+        <!-- <button class="mode-tab" data-mode="bridge">Bridge</button> -->
+      </div>
+
+      <!-- Send Form -->
+      <div id="txForm" class="card">
+        <p class="section-desc" style="color: #00f0ff; text-shadow: 0 0 8px rgba(0,240,255,0.4); font-weight: 500;">Send tokens privately through shadow wallets and obfuscated routes.</p>
+
+        <!-- Token + Amount -->
+        <div class="form-group">
+          <label class="form-label">Token & Amount</label>
+          <div class="input-row">
+            <div id="tokenSelect" class="token-select"></div>
+            <input type="number" id="amountInput" class="input-amount" placeholder="0.00" step="any" min="0">
+            <button id="maxBtn" class="btn-max">MAX</button>
+          </div>
+          <div class="balance-row">
+            <span class="balance-row-label">Available:</span>
+            <span id="availableBalance">0.00</span>
+            <span id="availableToken">SOL</span>
+          </div>
+        </div>
+
+        <!-- Recipient -->
+        <div class="form-group">
+          <label class="form-label">Recipient</label>
+          <input type="text" id="recipientInput" class="input-full" placeholder="Solana wallet address..." spellcheck="false">
+          <div id="addressHint" class="address-hint"></div>
+        </div>
+
+        <!-- Privacy Level -->
+        <div class="form-group">
+          <label class="form-label">Privacy Level</label>
+          <div class="privacy-options" id="privacyOptions" style="display:none;">
+            <!-- <button class="privacy-opt" data-level="enhanced" title="3 hops + token swap">Enhanced</button> -->
+            <!-- <button class="privacy-opt" data-level="maximum" title="Private pool bridge + splits">Maximum</button> -->
+            <button class="privacy-opt active" data-level="maximum-plus" title="Double private pool bridge">Send Privately</button>
+          </div>
+        </div>
+
+        <!-- Advanced toggle -->
+        <details class="advanced-toggle">
+          <summary>Advanced Settings</summary>
+          <div class="advanced-body">
+            <div class="adv-row">
+              <label>Priority Fee</label>
+              <select id="priorityFee" class="adv-select">
+                <option value="none">None</option>
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="adv-row">
+              <label>Jito Tip</label>
+              <select id="jitoTip" class="adv-select">
+                <option value="none">None</option>
+                <option value="low" selected>Low (0.0001)</option>
+                <option value="medium">Med (0.001)</option>
+                <option value="high">High (0.01)</option>
+              </select>
+            </div>
+            <div class="adv-row">
+              <label>Skip Preflight</label>
+              <input type="checkbox" id="skipPreflight" checked>
+            </div>
+          </div>
+        </details>
+
+        <!-- Summary + Send -->
+        <div class="send-summary">
+          <div class="bridge-summary-row"><span>Amount</span><span id="usdEstimate">—</span></div>
+          <div class="bridge-summary-row"><span>Fee (1%)</span><span id="sendFeeEstimate">—</span></div>
+          <div class="bridge-summary-row total"><span>Total Cost</span><span id="sendTotalEstimate">—</span></div>
+        </div>
+        <button id="sendBtn" class="btn btn-send btn-not-ready">
+          <span class="btn-text">Connect Wallet</span>
+          <span class="btn-loader hidden">⏳</span>
+        </button>
+      </div>
+
+      <!-- Bridge Mode -->
+      <div id="bridgeMode" class="card hidden">
+        <p class="section-desc">Cross-chain bridge via Monero for untraceable transfers to any network.</p>
+
+        <!-- Visual flow indicator -->
+        <div class="bridge-flow">
+          <div class="bridge-flow-step">SOL</div>
+          <div class="bridge-flow-arrow">→</div>
+          <div class="bridge-flow-step accent">XMR</div>
+          <div class="bridge-flow-arrow">→</div>
+          <div class="bridge-flow-step" id="flowDestBadge">ETH</div>
+        </div>
+
+        <!-- Destination Chain -->
+        <div class="form-group">
+          <label class="form-label">Destination Chain</label>
+          <div class="chain-tabs" id="chainTabs">
+            <button class="chain-tab active" data-chain="eth"><img src="eth-logo.png" class="chain-tab-icon">ETH</button>
+            <button class="chain-tab" data-chain="bnb"><img src="bnb-logo.png" class="chain-tab-icon">BNB</button>
+            <button class="chain-tab" data-chain="base"><img src="base-logo.png" class="chain-tab-icon">Base</button>
+            <button class="chain-tab" data-chain="poly"><img src="matic-logo.png" class="chain-tab-icon">Polygon</button>
+            <button class="chain-tab" data-chain="arb"><img src="arb-logo.png" class="chain-tab-icon">Arb</button>
+            <button class="chain-tab" data-chain="btc"><img src="btc-logo.png" class="chain-tab-icon">BTC</button>
+            <button class="chain-tab" data-chain="sol"><img src="sol-logo.png" class="chain-tab-icon">SOL</button>
+            <button class="chain-tab" data-chain="ltc"><img src="ltc-logo.png" class="chain-tab-icon">LTC</button>
+          </div>
+          <div class="chain-tokens" id="chainTokens"></div>
+        </div>
+
+        <!-- Hidden select for backwards compat -->
+        <select id="bridgeDestNetwork" class="hidden">
+          <option value="eth">Ethereum (ETH)</option>
+          <option value="bsc">BSC (BNB)</option>
+          <option value="btc">Bitcoin (BTC)</option>
+          <option value="base">Base (ETH)</option>
+          <option value="matic">Polygon (MATIC)</option>
+          <option value="arb">Arbitrum (ETH)</option>
+          <option value="sol">Solana (SOL)</option>
+          <option value="ltc">Litecoin (LTC)</option>
+          <option value="usdt">USDT (ERC-20)</option>
+          <option value="usdc">USDC (ERC-20)</option>
+        </select>
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <div class="input-row">
+            <input type="number" id="bridgeAmountInput" class="input-amount" placeholder="0.00" step="any" min="0">
+            <button id="bridgeMaxBtn" class="btn-max">MAX</button>
+            <span class="token-label">SOL</span>
+          </div>
+          <div class="balance-row">
+            <span class="balance-row-label">Available:</span>
+            <span id="bridgeAvailableBalance">—</span>
+            <span>SOL</span>
+          </div>
+        </div>
+
+        <!-- Destination Address -->
+        <div class="form-group">
+          <label class="form-label">Destination Address</label>
+          <input type="text" id="bridgeRecipientInput" class="input-full" placeholder="Address on destination chain..." spellcheck="false">
+          <div id="bridgeAddrHint" class="address-hint"></div>
+          <div id="bridgeDestLabel" class="bridge-dest-label"></div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bridge-summary">
+          <div class="bridge-summary-row"><span>Send</span><span id="bridgeSendAmount">—</span></div>
+          <div class="bridge-summary-row"><span>Fee</span><span id="bridgeFee">~1%</span></div>
+          <div class="bridge-summary-row"><span>Receive ≈</span><span id="bridgeReceiveAmount">—</span></div>
+          <div id="flowDestLabel" class="hidden"></div>
+        </div>
+        <button id="bridgeStartBtn" class="btn btn-send" disabled>
+          <span class="btn-text">Start Bridge</span>
+          <span class="btn-loader hidden">⏳</span>
+        </button>
+        <div id="bridgeStatus" class="bridge-status hidden"></div>
+      </div>
+
+      <!-- Batch Mode -->
+      <div id="batchMode" class="card hidden">
+        <p class="batch-desc">Send to multiple wallets in one session. Each recipient gets their own shadow route.</p>
+        <div class="batch-top-row">
+          <div id="batchTokenSelect" class="token-select"></div>
+          <div class="privacy-options" id="batchPrivacyOptions" style="display:none;">
+            <!-- <button class="privacy-opt" data-level="enhanced">Enhanced</button> -->
+            <!-- <button class="privacy-opt" data-level="maximum">Maximum</button> -->
+            <button class="privacy-opt active" data-level="maximum-plus">Max+</button>
+          </div>
+        </div>
+        <table class="batch-table">
+          <thead><tr><th>#</th><th>Recipient Address</th><th>Amount</th><th></th></tr></thead>
+          <tbody id="batchRecipients">
+            <tr class="batch-row">
+              <td class="batch-num">1</td>
+              <td><input type="text" class="batch-addr" placeholder="Solana address..." spellcheck="false"></td>
+              <td><input type="number" class="batch-amt" placeholder="0.00" step="any" min="0"></td>
+              <td><button class="batch-rm" title="Remove">×</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="batch-actions">
+          <button id="batchAddBtn" class="batch-add-btn">+ Add Recipient</button>
+          <button id="batchClearBtn" class="batch-clear-btn">Clear All</button>
+        </div>
+        <div id="batchSummary" class="batch-summary">
+          <div class="bridge-summary-row"><span>Recipients</span><span id="batchTotalRecipients">1</span></div>
+          <div class="bridge-summary-row"><span>Total</span><span id="batchTotalAmount">0</span></div>
+          <div class="bridge-summary-row"><span>Fee (1%)</span><span id="batchTotalFee">0</span></div>
+          <div class="bridge-summary-row total"><span>Total Cost</span><span id="batchTotalCost">0</span></div>
+          <span id="batchCount" class="hidden"></span>
+        </div>
+        <button id="batchSendBtn" class="btn btn-send" disabled><span class="btn-text">Send Batch</span><span class="btn-loader hidden">⏳</span></button>
+        <div id="batchProgress" class="batch-progress hidden">
+          <div class="progress-bar"><div id="batchProgressFill" class="progress-fill"></div></div>
+          <div id="batchProgressText" class="progress-text"></div>
+        </div>
+        <div id="batchLog" class="batch-log hidden"></div>
+      </div>
+
+      <div id="txStepBar" class="tx-step-bar hidden">
+        <div id="stepProgress" class="step-progress">
+          <span id="stepText" class="step-text">1/7</span>
+          <span id="stepLabel" class="step-label">Initializing...</span>
+        </div>
+        <div class="step-bar"><div id="stepBarFill" class="step-bar-fill"></div></div>
+      </div>
+
+      <!-- Receipt Card -->
+      <div id="txResult" class="receipt-wrap hidden">
+        <div id="receiptCard" class="receipt-card">
+          <div class="receipt-header">
+            <span class="receipt-logo">👻</span>
+            <span class="receipt-brand">Private TX</span>
+            <span class="receipt-badge" id="receiptBadge">✅ Complete</span>
+          </div>
+          <div class="receipt-divider"></div>
+          <div class="receipt-body">
+            <div class="receipt-row">
+              <span class="receipt-label">Amount</span>
+              <span class="receipt-value" id="receiptAmount">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Token</span>
+              <span class="receipt-value" id="receiptToken"><img id="receiptTokenLogo" class="receipt-token-logo"> <span id="receiptTokenName">—</span></span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Privacy</span>
+              <span class="receipt-value" id="receiptPrivacy">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Hops</span>
+              <span class="receipt-value" id="receiptHops">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Date</span>
+              <span class="receipt-value" id="receiptDate">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">TX</span>
+              <a class="receipt-value receipt-tx-link" id="receiptTxLink" target="_blank">—</a>
+            </div>
+          </div>
+          <div class="receipt-divider"></div>
+          <div class="receipt-footer-text">🔒 Private · Untraceable · MEV Protected</div>
+        </div>
+        <div class="receipt-actions">
+          <button id="receiptCopyBtn" class="receipt-act-btn" title="Copy receipt">📋 Copy</button>
+          <button id="receiptDownloadBtn" class="receipt-act-btn" title="Download as image">📥 Download</button>
+          <a id="txLink" class="receipt-act-btn hidden" target="_blank">🔗 Solscan</a>
+          <button id="newTxBtn" class="receipt-act-btn receipt-act-new">↩ New TX</button>
+        </div>
+      </div>
+
+      <!-- Recovery Banner (shows automatically when stuck funds detected) -->
+      <div id="recoveryBanner" class="recovery-banner hidden">
+        <div class="recovery-header">
+          <span class="recovery-icon">⚠️</span>
+          <span class="recovery-title">Fondos recuperables detectados</span>
+        </div>
+        <div id="recoveryInfo" class="recovery-info-text"></div>
+        <div class="recovery-actions">
+          <button id="recoverBtn" class="btn-recover"><span class="btn-text">🔄 Recover Funds</span></button>
+          <button id="recoverDismissBtn" class="btn-recover-dismiss">✕ Dismiss</button>
+        </div>
+        <div id="recoveryLog" class="recovery-log" style="display:none;"></div>
+      </div>
+
+      <!-- Manual Recovery Check Button (always visible when wallet connected) -->
+      <div id="manualRecoveryCheck" class="manual-recovery-check hidden">
+        <button id="manualRecoverBtn" class="btn-manual-recover">
+          🔍 Check for stuck funds
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      <span>Solana Mainnet</span>
+      <span>•</span>
+      <span id="statusRpc">RPC Ready</span>
+    </div>
+    <footer class="footer">
+      <a href="docs.html" class="footer-docs">
+        📖 Docs
+      </a>
+      <a href="https://github.com/TheDevvvooorrr/Project-Changelog" target="_blank" class="footer-github">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://bundle.run/buffer@6.0.3"></script>
+  <script>
+    if (typeof window.Buffer === 'undefined') window.Buffer = buffer.Buffer;
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
+  <script>
+    if (typeof solanaWeb3 === 'undefined') {
+      document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:40vh">Failed to load Solana Web3. Please refresh.</h1>';
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="rpc-resilient.js"></script>
+  <script src="swap-engine.js"></script>
+  <script src="bridge-engine.js"></script>
+  <script src="privacy-engine-v2.js"></script>
+  <script src="privacy-maximum-v2.js"></script>
+  <script src="app.js"></script>
+  <script src="effects.js"></script>
+</body>
+</html>
