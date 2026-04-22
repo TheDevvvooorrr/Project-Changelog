@@ -1,42 +1,17 @@
 # Ciego
 
-> Private transfer experience on Solana with Phantom wallet popup flow.
+Private transfer experience built for simple, privacy-oriented on-chain usage.
 
----
+## Overview
+Ciego focuses on clean UX, clear fee visibility, and a straightforward transfer flow.
 
-## What is Ciego?
-
-Ciego is a privacy-focused transfer app designed to make on-chain fund movement harder to correlate, while keeping the UX simple and familiar.
-
-## Core Product Principles
-
-- Phantom popup flow (no seed phrase requests)
-- Zero-login experience
-- Minimal swap-card style UI
-- Clear fee/total breakdown before confirmation
-- Privacy-first routing design
-
-## Main Features
-
-- Private transfer flow with intermediate routing
-- Support for major Solana assets (SOL and stablecoins)
-- Resilient transaction flow with retry/recovery behavior
-- Single-session usability improvements for smoother execution
-
-## User Experience
-
-- Clean, exchange-inspired interface
-- Focused transfer flow with reduced distractions
-- Real-time amount, fee, and total visibility
-
-## Security & Privacy Approach
-
-- Sensitive signing remains wallet-side via Phantom
-- No public disclosure of internal routing or infrastructure details
-- Production mindset: reliability, clarity, and privacy by default
+## Principles
+- No seed phrase requests
+- No account signup requirement
+- Minimal interface
+- Transparent fee/total before confirmation
 
 ## Status
-
 Active development.
 
-See [CHANGELOG.md](./CHANGELOG.md) for version history.
+See [CHANGELOG.md](./CHANGELOG.md) for release notes.
