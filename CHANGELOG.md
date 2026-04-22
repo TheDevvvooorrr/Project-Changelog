@@ -1,4 +1,4 @@
-# Ciego — Changelog
+# Ciego Changelog
 
 > Product-level changes only. No internal code details.
 
