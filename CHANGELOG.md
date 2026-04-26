@@ -1,5 +1,13 @@
 # Ciego Changelog
 
+## v2.6 — Wallet Parity + Fast Route Stabilization (Apr 26, 2026)
+
+- Completed **wallet parity** for private send flows, with MetaMask behavior aligned to Phantom for production use.
+- Promoted stablecoin transfers to **Fast Route** for quicker execution and fewer waiting states.
+- Validated stablecoin coverage across the active send flow, including **USDC, USDT, and USD1**.
+- Removed temporary beta/testing UI elements to keep the wallet connection experience clean and consistent.
+- Added the latest wallet logos in **Connect Wallet** for clearer visual identification.
+
 ## v2.5 — Bridge Routing + Privacy+ Streamline (Apr 26, 2026)
 
 - Integrated **Fast Route** as the primary bridge route inside **Send Privately**.
