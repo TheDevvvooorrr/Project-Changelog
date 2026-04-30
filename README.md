@@ -15,3 +15,4 @@ Ciego focuses on clean UX, clear fee visibility, and a straightforward transfer 
 Active development.
 
 See [CHANGELOG.md](./CHANGELOG.md) for release notes.
+
