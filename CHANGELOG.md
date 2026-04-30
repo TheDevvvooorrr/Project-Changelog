@@ -128,4 +128,4 @@
 - Multi-asset support and cross-network destination support.
 - Client-side-first privacy execution model with recovery baseline.
 
-*Last updated: April 26, 2026*
+*Last updated: April 30, 2026*
