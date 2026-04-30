@@ -1,5 +1,15 @@
 # Ciego Changelog
 
+## v2.7 — Visual Identity Refresh + Wallet Connect Fix (Apr 30, 2026)
+
+- New **animated background** with subtle blur, giving the app a fresh, immersive feel without distracting from the action.
+- Updated **visual identity** to a deep purple + black palette with intense accents and stronger contrast (no more blue tones).
+- Switched to **sharp, exchange-grade edges** across the entire interface for a more precise look.
+- Redesigned **Send Privately panel**: translucent body, two corner light accents, refined shadows, and softer glows tuned for daily use.
+- Restored and aligned the **footer** (Docs · X · GitHub) at the bottom on a single line with consistent icon sizing.
+- Fixed **MetaMask Solana** detection so the wallet is now reliably available in Connect Wallet on production.
+- Multiple readability and contrast passes across forms, buttons, and modals for a cleaner overall experience.
+
 ## v2.6 — Wallet Parity + Fast Route Stabilization (Apr 26, 2026)
 
 - Completed **wallet parity** for private send flows, with MetaMask behavior aligned to Phantom for production use.
